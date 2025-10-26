@@ -1,21 +1,36 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
+import dotenv from "dotenv";
 dotenv.config();
 
-export async function verifyM2MToken(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).send('Token nije poslan.');
+const client = jwksClient({
+  jwksUri: `${process.env.AUTH0_ISSUER_BASE_URL}/.well-known/jwks.json`,
+});
 
-    const token = authHeader.split(' ')[1];
-    const response = await axios.get(`${process.env.AUTH0_ISSUER_BASE_URL}/userinfo`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, function (err, key) {
+    const signingKey = key.getPublicKey();
+    callback(null, signingKey);
+  });
+}
 
-    if (response.status === 200) next();
-    else res.status(403).send('Nevažeći token.');
-  } catch (err) {
-    console.error('Greška pri provjeri tokena:', err.message);
-    return res.status(403).send('Nevažeći ili istekao token.');
-  }
+export function verifyM2MToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).send("Token nije poslan");
+
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(
+    token,
+    getKey,
+    {
+      audience: process.env.AUTH0_AUDIENCE,
+      issuer: `${process.env.AUTH0_ISSUER_BASE_URL}/`,
+      algorithms: ["RS256"],
+    },
+    (err, decoded) => {
+      if (err) return res.status(403).send("Neispravan token");
+      next();
+    }
+  );
 }
