@@ -4,10 +4,11 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-// --- potpuno onemogući SSL za lokalnu bazu ---
+const isLocal = process.env.DATABASE_URL.includes("localhost");
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false
+  ssl: isLocal ? false : { rejectUnauthorized: false },
 });
 
 export default pool;
