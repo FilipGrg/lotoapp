@@ -1,6 +1,6 @@
 import express from "express";
-import { auth } from "express-openid-connect";
 import dotenv from "dotenv";
+import { auth } from "express-openid-connect";
 import { verifyM2MToken } from "./auth/m2mMiddleware.js";
 import publicRoutes from "./routes/public.js";
 import ticketsRoutes from "./routes/tickets.js";
@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 
+// OpenID Connect za korisnike
 app.use(
   auth({
     authRequired: false,
@@ -20,11 +21,14 @@ app.use(
   })
 );
 
-// ✅ Korisničke rute (bez M2M tokena)
+// ✅ Javne i korisničke rute — BEZ M2M tokena
 app.use("/", publicRoutes);
 app.use("/tickets", ticketsRoutes);
 
-// ✅ Admin rute (s M2M tokenom)
+// ✅ Admin rute — SAMO s M2M tokenom
 app.use("/", verifyM2MToken, adminRoutes);
 
-app.listen(3000, () => console.log("Server radi na portu 3000"));
+// Pokretanje servera
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server radi na portu ${process.env.PORT || 3000}`);
+});
