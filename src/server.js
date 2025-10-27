@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 
-// OpenID Connect za korisnike
+
 app.use(
   auth({
     authRequired: false,
@@ -21,14 +21,14 @@ app.use(
   })
 );
 
-// ✅ Javne i korisničke rute — BEZ M2M tokena
+
 app.use("/", publicRoutes);
 app.use("/tickets", ticketsRoutes);
 
-// ✅ Admin rute — SAMO s M2M tokenom
+
 app.use("/", verifyM2MToken, adminRoutes);
 
-// Pokretanje servera
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server radi na portu ${process.env.PORT || 3000}`);
 });

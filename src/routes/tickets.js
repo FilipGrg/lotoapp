@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
-// GET /tickets/new — forma za unos listića
+
 router.get("/new", async (req, res) => {
   res.send(`
     <html>
@@ -37,7 +37,7 @@ router.get("/new", async (req, res) => {
   `);
 });
 
-// POST /tickets/new — obrada i spremanje listića
+
 router.post("/new", async (req, res) => {
   try {
     const { id_number, numbers } = req.body;
@@ -81,7 +81,7 @@ router.post("/new", async (req, res) => {
   }
 });
 
-// GET /tickets/:id — prikaz pojedinog listića i rezultata
+
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;

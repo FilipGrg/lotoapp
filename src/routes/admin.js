@@ -7,14 +7,14 @@ const router = express.Router();
 router.use(express.json());
 router.use(verifyM2MToken);
 
-// POST /new-round
+
 router.post("/new-round", async (req, res) => {
   await pool.query("UPDATE rounds SET active = false WHERE active = true");
   await pool.query("INSERT INTO rounds (active) VALUES (true)");
   res.sendStatus(204);
 });
 
-// POST /close
+
 router.post("/close", async (req, res) => {
   const r = await pool.query("SELECT * FROM rounds WHERE active = true LIMIT 1");
   if (r.rows.length === 0) return res.sendStatus(204);
@@ -23,7 +23,7 @@ router.post("/close", async (req, res) => {
   res.sendStatus(204);
 });
 
-// POST /store-results
+
 router.post("/store-results", async (req, res) => {
   const { numbers } = req.body;
   const r = await pool.query("SELECT * FROM rounds ORDER BY id DESC LIMIT 1");
